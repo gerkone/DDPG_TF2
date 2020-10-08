@@ -14,3 +14,12 @@ The DDPG algorith was originaly described [this paper](https://arxiv.org/pdf/150
 - Actor and critic structure
 - Use of target models for both actor and critic networks (weight transfer with Polyak averaging).
 - Use of the Bellman equation to describe the optimal q-value function for each pair <state, action>.
+
+## Performance on OpenAI gym environments
+### Pendulum-v0
+The model usually needs about 70-80 iterations to reach a decent performance. 
+This number may be decreased by further hyperparameter tuning.
+
+Performance after 70 iterations:
+
+![Pendulum-v0](https://media2.giphy.com/media/731NWtJGS7onYIAqgN/giphy.gif)
