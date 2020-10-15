@@ -56,15 +56,15 @@ class Agent(object):
         Return the best action in the passed state, according to the model
         in training. Noise added for exploration
         """
-        noise = self._noise()
         #take only random actions for the first episode
         if(step > self.rand_steps):
+            noise = self._noise()
             state = state.reshape(self.n_states, 1).T
             action = self.actor.model.predict(state)[0]
             action_p = action + noise
         else:
             #explore the action space quickly
-            action_p = noise * self.upper_bound
+            action_p = np.random.uniform(self.lower_bound, self.upper_bound, self.n_actions)
         #clip the resulting action with the bounds
         action_p = np.clip(action_p, self.lower_bound, self.upper_bound)
         return action_p
