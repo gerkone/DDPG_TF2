@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 import numpy as np
 import tensorflow as tf
@@ -14,7 +15,7 @@ class Agent(object):
     """
     def __init__(self, state_dims, action_dims, action_boundaries,
                 actor_lr = 1e-5, critic_lr = 1e-4, batch_size = 64, gamma = 0.99,
-                buf_size = 10000, tau = 1e-3, fcl1_size = 400, fcl2_size = 600):
+                rand_steps = 1, buf_size = 10000, tau = 1e-3, fcl1_size = 400, fcl2_size = 600):
         # action size
         self.n_states = state_dims[0]
         # state size
@@ -30,31 +31,44 @@ class Agent(object):
         self.lower_bound = action_boundaries[0]
         self.upper_bound = action_boundaries[1]
 
+        # number of episodes for random action exploration
+        self.rand_steps = rand_steps - 1
+
         # turn off most logging
         logging.getLogger("tensorflow").setLevel(logging.FATAL)
 
-        # actor models
+        # date = datetime.now().strftime("%m%d%Y_%H%M%S")
+        # path_actor = "./models/actor/actor" + date + ".h5"
+        # path_critic = "./models/critic/actor" + date + ".h5"
+
+        # actor class
         self.actor = Actor(state_dims = state_dims, action_dims = action_dims,
                             lr = actor_lr, batch_size = batch_size, tau = tau,
                             upper_bound = self.upper_bound,
                             fcl1_size = fcl1_size, fcl2_size = fcl2_size)
-        # critic models
+        # critic class
         self.critic = Critic(state_dims = state_dims, action_dims = action_dims,
                             lr = critic_lr, batch_size = batch_size, tau = tau,
                             fcl1_size = fcl1_size, fcl2_size = fcl2_size)
 
-    def get_action(self, state):
+    def get_action(self, state, step):
         """
         Return the best action in the passed state, according to the model
         in training. Noise added for exploration
         """
         noise = self._noise()
-        state = state.reshape(self.n_states, 1).T
-        action = self.actor.model.predict(state)[0]
-        action_p = action + noise
+        #take only random actions for the first episode
+        if(step > self.rand_steps):
+            state = state.reshape(self.n_states, 1).T
+            action = self.actor.model.predict(state)[0]
+            action_p = action + noise
+        else:
+            #explore the action space quickly
+            action_p = noise * self.upper_bound
         #clip the resulting action with the bounds
         action_p = np.clip(action_p, self.lower_bound, self.upper_bound)
         return action_p
+
 
     def learn(self):
         """

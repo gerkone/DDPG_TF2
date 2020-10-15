@@ -1,8 +1,7 @@
 import numpy as np
-import keras.backend as K
 import tensorflow as tf
 
-from tensorflow.keras.models import Model
+from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.layers import Dense, Input, BatchNormalization, Activation, Lambda
 from tensorflow.keras.initializers import RandomUniform
 from tensorflow.keras.optimizers import Adam
@@ -13,7 +12,8 @@ stochastic funcion approssimator for the deterministic policy map u : S -> A
 (with S set of states, A set of actions)
 """
 class Actor(object):
-    def __init__(self, state_dims, action_dims, lr, batch_size, tau, fcl1_size, fcl2_size, upper_bound):
+    def __init__(self, state_dims, action_dims, lr, batch_size, tau,
+                    fcl1_size, fcl2_size, upper_bound):
         self.state_dims = state_dims
         self.action_dims = action_dims
         self.lr = lr
